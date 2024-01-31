@@ -1,4 +1,4 @@
-module test-result
+module github.com/komase/test-result
 
 go 1.21
 
