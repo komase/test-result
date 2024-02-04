@@ -158,6 +158,13 @@ func loadTestResultsFromFile(fileName string) ([]Result, error) {
 	return results, nil
 }
 
+func isRunningInCI() bool {
+	if os.Getenv("CI_PLATFORM") != "" {
+		return true
+	}
+	return false
+}
+
 var (
 	commandLineFlagSet = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 	fileName           string
@@ -166,8 +173,6 @@ var (
 )
 
 func run(args []string) int {
-	// for GitHub Actions
-	color.NoColor = false
 	commandLineFlagSet.StringVar(&fileName, "f", "", "Filename of the file containing the output from Go tests.")
 	commandLineFlagSet.BoolVar(&stdoutFlag, "v", false, "Display the output of Go tests to stdout.")
 	commandLineFlagSet.BoolVar(&allFlag, "a", false, "All (pass, fail, skip) results are output.")
@@ -192,6 +197,9 @@ func run(args []string) int {
 	}
 
 	passResult, failedResult, skipResult := groupResultsByTestStatus(results)
+	if isRunningInCI() {
+		color.NoColor = false
+	}
 	printFailedResults(failedResult)
 	if allFlag {
 		printSkipResults(skipResult)
