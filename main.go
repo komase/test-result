@@ -158,24 +158,19 @@ func loadTestResultsFromFile(fileName string) ([]Result, error) {
 	return results, nil
 }
 
-func isRunningInCI() bool {
-	if os.Getenv("CI_PLATFORM") != "" {
-		return true
-	}
-	return false
-}
-
 var (
 	commandLineFlagSet = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 	fileName           string
 	stdoutFlag         bool
 	allFlag            bool
+	ciFlag             bool
 )
 
 func run(args []string) int {
 	commandLineFlagSet.StringVar(&fileName, "f", "", "Filename of the file containing the output from Go tests.")
 	commandLineFlagSet.BoolVar(&stdoutFlag, "v", false, "Display the output of Go tests to stdout.")
-	commandLineFlagSet.BoolVar(&allFlag, "a", false, "All (pass, fail, skip) results are output.")
+	commandLineFlagSet.BoolVar(&allFlag, "all", false, "All (pass, fail, skip) results are output.")
+	commandLineFlagSet.BoolVar(&ciFlag, "ci", false, "Set this flag to run in CI mode")
 	if err := commandLineFlagSet.Parse(args); err != nil {
 		log.Fatal(err)
 	}
@@ -196,10 +191,11 @@ func run(args []string) int {
 		}
 	}
 
-	passResult, failedResult, skipResult := groupResultsByTestStatus(results)
-	if isRunningInCI() {
+	if ciFlag {
 		color.NoColor = false
 	}
+
+	passResult, failedResult, skipResult := groupResultsByTestStatus(results)
 	printFailedResults(failedResult)
 	if allFlag {
 		printSkipResults(skipResult)
