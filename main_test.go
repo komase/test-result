@@ -14,7 +14,7 @@ func Test_Run(t *testing.T) {
 	}{
 		{
 			name: "Test_Run",
-			args: []string{"-f", "test/test_results.out"},
+			args: []string{"-f", "test/results_sample"},
 			want: 0,
 		},
 	}
