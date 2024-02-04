@@ -21,16 +21,17 @@ type Result struct {
 	Output  *string   `json:"Output,omitempty"`
 }
 
-type FailedResult map[string][]*Result
-type PassResult map[string][]*Result
-type SkipResult map[string][]*Result
+type TestResultsPassed map[string][]*Result
+type TestResultsFailed map[string][]*Result
+type TestResultsSkipped map[string][]*Result
 
-func groupResultsByTestStatus(results []Result) (PassResult, FailedResult, SkipResult) {
+func groupResultsByTestStatus(results []Result) (TestResultsPassed, TestResultsFailed, TestResultsSkipped) {
+	failedResults := make(TestResultsFailed)
+	passResults := make(TestResultsPassed)
+	skipResults := make(TestResultsSkipped)
+
 	var name string
 	var outputs []*Result
-	failedResult := make(map[string][]*Result)
-	passResult := make(map[string][]*Result)
-	skipResult := make(map[string][]*Result)
 	for _, d := range results {
 		if d.Output != nil && stdoutFlag {
 			fmt.Print(*d.Output)
@@ -44,19 +45,19 @@ func groupResultsByTestStatus(results []Result) (PassResult, FailedResult, SkipR
 				dCopy := d
 				outputs = append(outputs, &dCopy)
 			case "fail":
-				failedResult[name] = outputs
+				failedResults[name] = outputs
 			case "skip":
-				skipResult[name] = outputs
+				skipResults[name] = outputs
 			case "pass":
-				passResult[name] = outputs
+				passResults[name] = outputs
 			}
 		}
 	}
 
-	return passResult, failedResult, skipResult
+	return passResults, failedResults, skipResults
 }
 
-func printFailures(result FailedResult) {
+func printFailedResults(result TestResultsFailed) {
 	separator := strings.Repeat("-", 120)
 	color.Red(separator)
 	color.Red("Failures")
@@ -74,7 +75,7 @@ func printFailures(result FailedResult) {
 	}
 }
 
-func printPasses(result PassResult) {
+func printPassResults(result TestResultsPassed) {
 	separator := strings.Repeat("-", 120)
 	color.Green(separator)
 	color.Green("Passes")
@@ -92,7 +93,7 @@ func printPasses(result PassResult) {
 	}
 }
 
-func printSkips(result SkipResult) {
+func printSkipResults(result TestResultsSkipped) {
 	separator := strings.Repeat("-", 120)
 	color.Blue(separator)
 	color.Blue("Skips")
@@ -135,10 +136,12 @@ func loadTestResultsFromFile(fileName string) ([]Result, error) {
 		return nil, fmt.Errorf("error opening file %s: %v", fileName, err)
 	}
 	defer file.Close()
+
 	scanner := bufio.NewScanner(file)
 	if err := scanner.Err(); err != nil {
 		return nil, fmt.Errorf("error reading from file %s: %v", fileName, err)
 	}
+
 	var results []Result
 	for scanner.Scan() {
 		var row Result
@@ -159,13 +162,15 @@ var (
 	commandLineFlagSet = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 	fileName           string
 	stdoutFlag         bool
+	allFlag            bool
 )
 
 func run(args []string) int {
 	// for GitHub Actions
 	color.NoColor = false
-	commandLineFlagSet.StringVar(&fileName, "f", "", "File name")
-	commandLineFlagSet.BoolVar(&stdoutFlag, "v", false, "test output to stdout")
+	commandLineFlagSet.StringVar(&fileName, "f", "", "Filename of the file containing the output from Go tests.")
+	commandLineFlagSet.BoolVar(&stdoutFlag, "v", false, "Display the output of Go tests to stdout.")
+	commandLineFlagSet.BoolVar(&allFlag, "a", false, "All (pass, fail, skip) results are output.")
 	if err := commandLineFlagSet.Parse(args); err != nil {
 		log.Fatal(err)
 	}
@@ -187,9 +192,11 @@ func run(args []string) int {
 	}
 
 	passResult, failedResult, skipResult := groupResultsByTestStatus(results)
-	printPasses(passResult)
-	printFailures(failedResult)
-	printSkips(skipResult)
+	printFailedResults(failedResult)
+	if allFlag {
+		printSkipResults(skipResult)
+		printPassResults(passResult)
+	}
 	return 0
 }
 
