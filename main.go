@@ -60,7 +60,7 @@ func groupResultsByTestStatus(results []Result) (TestResultsPassed, TestResultsF
 func printFailedResults(result TestResultsFailed) {
 	separator := strings.Repeat("-", 120)
 	color.Red(separator)
-	color.Red("Failures")
+	color.Red("Failed")
 	color.Red(separator)
 
 	for testName, Results := range result {
@@ -78,7 +78,7 @@ func printFailedResults(result TestResultsFailed) {
 func printPassResults(result TestResultsPassed) {
 	separator := strings.Repeat("-", 120)
 	color.Green(separator)
-	color.Green("Passes")
+	color.Green("Passed")
 	color.Green(separator)
 
 	for testName, Results := range result {
@@ -96,7 +96,7 @@ func printPassResults(result TestResultsPassed) {
 func printSkipResults(result TestResultsSkipped) {
 	separator := strings.Repeat("-", 120)
 	color.Blue(separator)
-	color.Blue("Skips")
+	color.Blue("Skipped")
 	color.Blue(separator)
 
 	for testName, Results := range result {
@@ -169,7 +169,7 @@ var (
 func run(args []string) int {
 	commandLineFlagSet.StringVar(&fileName, "f", "", "Filename of the file containing the output from Go tests.")
 	commandLineFlagSet.BoolVar(&stdoutFlag, "v", false, "Display the output of Go tests to stdout.")
-	commandLineFlagSet.BoolVar(&allFlag, "all", false, "All (pass, fail, skip) results are output.")
+	commandLineFlagSet.BoolVar(&allFlag, "a", false, "All (pass, fail, skip) results are output.")
 	commandLineFlagSet.BoolVar(&ciFlag, "ci", false, "Set this flag to run in CI mode.")
 	if err := commandLineFlagSet.Parse(args); err != nil {
 		log.Fatal(err)
