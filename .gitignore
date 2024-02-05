@@ -22,3 +22,4 @@ test-result*
 go.work
 
 .idea/
+dist/
