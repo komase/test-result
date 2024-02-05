@@ -21,16 +21,17 @@ type Result struct {
 	Output  *string   `json:"Output,omitempty"`
 }
 
-type TestResultsPassed map[string][]*Result
-type TestResultsFailed map[string][]*Result
-type TestResultsSkipped map[string][]*Result
+type TestName string
+type TestResultsPassed map[TestName][]*Result
+type TestResultsFailed map[TestName][]*Result
+type TestResultsSkipped map[TestName][]*Result
 
 func groupResultsByTestStatus(results []Result) (TestResultsPassed, TestResultsFailed, TestResultsSkipped) {
 	failedResults := make(TestResultsFailed)
 	passResults := make(TestResultsPassed)
 	skipResults := make(TestResultsSkipped)
 
-	var name string
+	var name TestName
 	var outputs []*Result
 	for _, d := range results {
 		if d.Output != nil && stdoutFlag {
@@ -40,7 +41,7 @@ func groupResultsByTestStatus(results []Result) (TestResultsPassed, TestResultsF
 			switch d.Action {
 			case "run":
 				outputs = []*Result{}
-				name = *d.Test
+				name = TestName(*d.Test)
 			case "output":
 				dCopy := d
 				outputs = append(outputs, &dCopy)
@@ -57,18 +58,18 @@ func groupResultsByTestStatus(results []Result) (TestResultsPassed, TestResultsF
 	return passResults, failedResults, skipResults
 }
 
-func printFailedResults(result TestResultsFailed) {
+func printFailedResults(results TestResultsFailed) {
 	separator := strings.Repeat("-", 120)
 	color.Red(separator)
 	color.Red("Failed")
 	color.Red(separator)
 
-	for testName, Results := range result {
-		for _, Result := range Results {
-			if Result.Output != nil {
-				trimmed := strings.TrimSpace(*Result.Output)
+	for testName, outputs := range results {
+		for _, v := range outputs {
+			if v.Output != nil {
+				trimmed := strings.TrimSpace(*v.Output)
 				if strings.Contains(trimmed, ".go") {
-					color.Red("%s:%s %s\n", Result.Package, testName, trimmed)
+					color.Red("%s:%s %s\n", v.Package, testName, trimmed)
 				}
 			}
 		}
@@ -81,12 +82,12 @@ func printPassResults(result TestResultsPassed) {
 	color.Green("Passed")
 	color.Green(separator)
 
-	for testName, Results := range result {
-		for _, Result := range Results {
-			if Result.Output != nil {
-				trimmed := strings.TrimSpace(*Result.Output)
+	for testName, outputs := range result {
+		for _, v := range outputs {
+			if v.Output != nil {
+				trimmed := strings.TrimSpace(*v.Output)
 				if strings.Contains(trimmed, "--- PASS") {
-					color.Green("%s:%s %s\n", Result.Package, testName, trimmed)
+					color.Green("%s:%s %s\n", v.Package, testName, trimmed)
 				}
 			}
 		}
@@ -99,12 +100,12 @@ func printSkipResults(result TestResultsSkipped) {
 	color.Blue("Skipped")
 	color.Blue(separator)
 
-	for testName, Results := range result {
-		for _, Result := range Results {
-			if Result.Output != nil {
-				trimmed := strings.TrimSpace(*Result.Output)
+	for testName, outputs := range result {
+		for _, v := range outputs {
+			if v.Output != nil {
+				trimmed := strings.TrimSpace(*v.Output)
 				if strings.Contains(trimmed, "--- SKIP") {
-					color.Blue("%s:%s %s\n", Result.Package, testName, trimmed)
+					color.Blue("%s:%s %s\n", v.Package, testName, trimmed)
 				}
 			}
 		}
