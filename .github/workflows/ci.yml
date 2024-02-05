@@ -1,0 +1,23 @@
+name: ci
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    types': [ opened, synchronize ]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: set up go
+        uses: actions/setup-go@v4
+      - name: checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          ref: ${{ github.head_ref }}
+      - name: run tests
+        run: |
+          go test -v ./...
