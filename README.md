@@ -8,8 +8,6 @@ This tool is particularly useful for developers looking to quickly assess the st
 
 - **JSON Parsing**: Directly parses JSON output from `go test -json ...`, providing a clear and structured display of test results.
 - **Flexible Input**: Supports input from both standard input (stdin) and files, allowing for versatility in how test results are fed into the tool.
-- **Customizable Output**: Offers options to display all test results or filter them based on their status (pass, fail, skip).
-- **CI Integration**: Includes a `--ci` option for optimized output in Continuous Integration environments.
 
 ## Installation
 
@@ -34,9 +32,10 @@ test-result -f results.json
 
 Command Line Options
 ```bash
--f <filename>: Specifies the filename containing the output from Go tests. If not provided, test-result will read from stdin.
--v: Displays the output of Go tests to stdout.
--a: All (pass, fail, skip) results are output.
---ci: Optimizes output for CI environments by automatically setting appropriate flags.
+-a	All (pass, fail, skip) results are output.
+-c  If you want to display in color even in a CI environment, please add the -c option.
+-f string
+    	Filename of the file containing the output from Go tests.
+-v	Display the output of Go tests to stdout.
 ```
 
