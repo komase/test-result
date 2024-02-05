@@ -15,7 +15,7 @@ func Test_Run(t *testing.T) {
 	}{
 		{
 			name: "Test_Run",
-			args: []string{"-f", "test/results_sample", "-a"},
+			args: []string{"-f", "example/results", "-a"},
 			want: 0,
 		},
 	}
@@ -69,15 +69,15 @@ func Test_GroupResultsByTestStatus(t *testing.T) {
 	passResults, failResults, skipResults := groupResultsByTestStatus(results)
 
 	if _, ok := passResults[TestName(testName1)]; !ok {
-		t.Errorf("Expected test %s to pass", testName1)
+		t.Errorf("Expected example %s to pass", testName1)
 	}
 
 	if _, ok := failResults[TestName(testName2)]; !ok {
-		t.Errorf("Expected test %s to fail", testName2)
+		t.Errorf("Expected example %s to fail", testName2)
 	}
 
 	if _, ok := skipResults[TestName(testName3)]; !ok {
-		t.Errorf("Expected test %s to fail", testName3)
+		t.Errorf("Expected example %s to fail", testName3)
 	}
 
 	wantPass := 2
