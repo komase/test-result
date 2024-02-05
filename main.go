@@ -61,7 +61,7 @@ func groupResultsByTestStatus(results []Result) (TestResultsPassed, TestResultsF
 func printFailedResults(results TestResultsFailed) {
 	separator := strings.Repeat("-", 120)
 	color.Red(separator)
-	color.Red("Failed")
+	color.Red("Failed(%d)", len(results))
 	color.Red(separator)
 
 	for testName, outputs := range results {
@@ -79,7 +79,7 @@ func printFailedResults(results TestResultsFailed) {
 func printPassResults(result TestResultsPassed) {
 	separator := strings.Repeat("-", 120)
 	color.Green(separator)
-	color.Green("Passed")
+	color.Green("Passed(%d)", len(result))
 	color.Green(separator)
 
 	for testName, outputs := range result {
@@ -97,7 +97,7 @@ func printPassResults(result TestResultsPassed) {
 func printSkipResults(result TestResultsSkipped) {
 	separator := strings.Repeat("-", 120)
 	color.Blue(separator)
-	color.Blue("Skipped")
+	color.Blue("Skipped(%d)", len(result))
 	color.Blue(separator)
 
 	for testName, outputs := range result {
