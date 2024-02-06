@@ -167,13 +167,13 @@ var (
 	ciFlag             bool
 )
 
-func run(args []string) int {
+func run(args []string) (int, error) {
 	commandLineFlagSet.StringVar(&fileName, "f", "", "Filename of the file containing the output from Go tests.")
 	commandLineFlagSet.BoolVar(&stdoutFlag, "v", false, "Display the output of Go tests to stdout.")
 	commandLineFlagSet.BoolVar(&allFlag, "a", false, "All (pass, fail, skip) results are output.")
 	commandLineFlagSet.BoolVar(&ciFlag, "c", false, "If you want to display in color even in a CI environment, please add the -c option.")
 	if err := commandLineFlagSet.Parse(args); err != nil {
-		log.Fatal(err)
+		return 1, err
 	}
 
 	var results []Result
@@ -181,14 +181,12 @@ func run(args []string) int {
 	if fileName != "" {
 		results, err = loadTestResultsFromFile(fileName)
 		if err != nil {
-			log.Fatal(err)
-			return 1
+			return 1, err
 		}
 	} else {
 		results, err = loadTestResultsFromStdin()
 		if err != nil {
-			log.Fatal(err)
-			return 1
+			return 1, err
 		}
 	}
 
@@ -202,9 +200,13 @@ func run(args []string) int {
 		printSkipResults(skipResult)
 		printPassResults(passResult)
 	}
-	return 0
+	return 0, nil
 }
 
 func main() {
-	os.Exit(run(os.Args[1:]))
+	code, err := run(os.Args[1:])
+	if err != nil {
+		log.Fatal(err)
+	}
+	os.Exit(code)
 }

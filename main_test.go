@@ -9,14 +9,22 @@ import (
 
 func Test_Run(t *testing.T) {
 	tests := []struct {
-		name string
-		args []string
-		want int
+		name    string
+		args    []string
+		want    int
+		wantErr bool
 	}{
 		{
-			name: "Test_Run",
-			args: []string{"-f", "example/results", "-a"},
-			want: 0,
+			name:    "With file flag",
+			args:    []string{"-f", "example/results", "-a"},
+			want:    0,
+			wantErr: false,
+		},
+		{
+			name:    "When file does not exist",
+			args:    []string{"-f", "nothing", "-a"},
+			want:    1,
+			wantErr: true,
 		},
 	}
 
@@ -24,8 +32,9 @@ func Test_Run(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			commandLineFlagSet = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
-			if got := run(tt.args); got != tt.want {
-				t.Errorf("run() = %v, want %v", got, tt.want)
+			code, err := run(tt.args)
+			if code != tt.want || (err != nil) != tt.wantErr {
+				t.Errorf("code: got %d, want %d, error: got %v, want %v", code, tt.want, err, tt.wantErr)
 			}
 		})
 	}
