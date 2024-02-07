@@ -4,6 +4,8 @@ The `test-result` CLI enhances the visibility and readability of Go test results
 It provides a streamlined view of test outcomes, making it easier to understand test results at a glance. 
 This tool is particularly useful for developers looking to quickly assess the status of their tests in continuous integration pipelines or local development environments.
 
+![example](./example.png)
+
 ## Features
 
 - **JSON Parsing**: Directly parses JSON output from `go test -json ...`, providing a clear and structured display of test results.
