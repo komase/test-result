@@ -11,7 +11,9 @@ This tool is particularly useful for developers looking to quickly assess the st
 
 ## Installation
 
-TBD
+```bash
+go install github.com/komase/test-result
+```
 
 ## Usage
 To use test-result, you can pipe the output of go test directly into it or specify a file containing the JSON output from previous go test executions.
@@ -20,13 +22,13 @@ From Standard Input (stdin)
 
 ```bash
 
-go test -v -p 1 -json ./... | test-result
+go test -v -json ./... | test-result
 
 ```
 From a File
 
 ```bash
-go test -v -p 1 -json ./... > results.json
+go test -v -json ./... > results.json
 test-result -f results.json
 ```
 
