@@ -41,3 +41,25 @@ Command Line Options
 -v	Display the output of Go tests to stdout.
 ```
 
+GitHub Actions
+
+```yaml
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: set up go
+        uses: actions/setup-go@v4
+      - name: checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          ref: ${{ github.head_ref }}
+      - name: install test-result
+        run: go install github.com/komase/test-result
+      - name: run tests
+        run: |
+          go test -v -json ./... | test-result -c -a -v
+```
+
